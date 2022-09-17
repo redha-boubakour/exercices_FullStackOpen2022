@@ -1,62 +1,73 @@
-import React from "react";
+import { useState } from "react";
 
-const Header = (props) => {
-    return <h1>{props.course}</h1>;
-};
-
-const Part = (props) => {
-    return (
-        <p>
-            {props.parts.name} {props.parts.exercises}
-        </p>
-    );
-};
-
-const Content = (props) => {
+const Button = (props) => {
     return (
         <>
-            <Part parts={props.parts[0]} />
-            <Part parts={props.parts[1]} />
-            <Part parts={props.parts[2]} />
+            <button onClick={props.onClick}>{props.text}</button>
         </>
     );
 };
 
-const Total = (props) => {
+const StatisticLine = (props) => (
+    <p>
+        {props.text} : {props.value}
+    </p>
+);
+
+const Statistics = (props) => {
     return (
-        <p>
-            Number of exercises{" "}
-            {props.parts[0].exercises +
-                props.parts[1].exercises +
-                props.parts[2].exercises}
-        </p>
+        <>
+            <h3>Statistics</h3>
+            <StatisticLine text="good" value={props.good} />
+            <StatisticLine text="neutral" value={props.neutral} />
+            <StatisticLine text="bad" value={props.bad} /> / all : {props.all} /
+            average : {props.average} / positive : {props.positive} %
+        </>
     );
 };
 
-export default function App() {
-    const course = {
-        name: "Half Stack application development",
-        parts: [
-            {
-                name: "Fundamentals of React",
-                exercises: 10,
-            },
-            {
-                name: "Using props to pass data",
-                exercises: 7,
-            },
-            {
-                name: "State of a component",
-                exercises: 14,
-            },
-        ],
+const App = () => {
+    const [good, setGood] = useState(0);
+    const [neutral, setNeutral] = useState(0);
+    const [bad, setBad] = useState(0);
+
+    const all = good + neutral + bad;
+    const average = (good - bad) / all;
+    const positive = (good / all) * 100;
+
+    const handleClickGood = () => {
+        setGood(good + 1);
+    };
+
+    const handleClickNeutral = () => {
+        setNeutral(neutral + 1);
+    };
+
+    const handleClickBad = () => {
+        setBad(bad + 1);
     };
 
     return (
         <>
-            <Header course={course.name} />
-            <Content parts={course.parts} />
-            <Total parts={course.parts} />
+            <h3>Give feedback</h3>
+            <Button onClick={handleClickGood} text={"Good"} />
+            <Button onClick={handleClickNeutral} text={"Neutral"} />
+            <Button onClick={handleClickBad} text={"Bad"} />
+
+            {good || neutral || bad ? (
+                <Statistics
+                    good={good}
+                    neutral={neutral}
+                    bad={bad}
+                    all={all}
+                    average={average}
+                    positive={positive}
+                />
+            ) : (
+                <p>No feedback given</p>
+            )}
         </>
     );
-}
+};
+
+export default App;
