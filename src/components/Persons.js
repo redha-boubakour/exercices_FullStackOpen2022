@@ -10,7 +10,7 @@ const Persons = (props) => {
         <>
             <h3>Numbers</h3>
             {filteredPersons.map((person) => (
-                <Person person={person} />
+                <Person key={person.id} person={person} />
             ))}
         </>
     );
