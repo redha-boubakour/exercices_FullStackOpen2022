@@ -2,15 +2,15 @@ import { useEffect, useState } from "react";
 import Form from "./components/Form";
 import Filter from "./components/Filter";
 import Persons from "./components/Persons";
-import axios from "axios";
+import personService from "./services/persons";
 
 const App = () => {
     const [persons, setPersons] = useState([]);
 
     useEffect(() => {
-        axios
-            .get("http://localhost:3001/persons")
-            .then((response) => setPersons(response.data));
+        personService
+            .getAll()
+            .then((initialPersons) => setPersons(initialPersons));
     }, []);
 
     const [newName, setNewName] = useState("");
@@ -41,15 +41,27 @@ const App = () => {
                 `the name : ${newName} or the number : ${newNumber} is already added to phonebook`
             );
         } else {
-            setPersons(
-                persons.concat({
-                    name: newName,
-                    number: newNumber,
-                    id: persons.length + 1,
-                })
-            );
+            const newPerson = {
+                name: newName,
+                number: newNumber,
+            };
+
+            personService.create(newPerson).then((returnedPerson) => {
+                setPersons(persons.concat(returnedPerson));
+            });
+
             setNewName("");
             setNewNumber("");
+        }
+    };
+
+    const deletePerson = (id) => {
+        if (window.confirm(`Delete ?`)) {
+            personService
+                .delPerson(id)
+                .then(() =>
+                    setPersons(persons.filter((person) => person.id !== id))
+                );
         }
     };
 
@@ -67,7 +79,11 @@ const App = () => {
                 newNumber={newNumber}
                 handleInputNumberChange={handleInputNumberChange}
             />
-            <Persons persons={persons} newFilter={newFilter} />
+            <Persons
+                persons={persons}
+                deletePerson={deletePerson}
+                newFilter={newFilter}
+            />
         </div>
     );
 };
