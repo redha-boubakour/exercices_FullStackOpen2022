@@ -16,6 +16,10 @@ const App = () => {
     const [newName, setNewName] = useState("");
     const [newNumber, setNewNumber] = useState("");
     const [newFilter, setNewFilter] = useState("");
+    const [message, setMessage] = useState({
+        type: "",
+        content: "",
+    });
 
     const handleInputNameChange = (event) => {
         setNewName(event.target.value);
@@ -36,6 +40,8 @@ const App = () => {
             (person) => person.name === newName && person.number !== newNumber
         );
 
+        const alradyExist = persons.find((person) => person.name === newName);
+
         if (found) {
             if (
                 window.confirm(
@@ -53,6 +59,10 @@ const App = () => {
                             )
                         )
                     );
+                setMessage({
+                    type: "success",
+                    content: `The number of ${newName} was updated`,
+                });
                 setNewName("");
                 setNewNumber("");
             }
@@ -65,7 +75,10 @@ const App = () => {
             personService.create(newPerson).then((returnedPerson) => {
                 setPersons(persons.concat(returnedPerson));
             });
-
+            setMessage({
+                type: "success",
+                content: `Added ${newPerson.name}`,
+            });
             setNewName("");
             setNewNumber("");
         }
@@ -78,12 +91,26 @@ const App = () => {
                 .then(() =>
                     setPersons(persons.filter((person) => person.id !== id))
                 );
+            setMessage({
+                type: "success",
+                content: `Deleted succesfully`,
+            });
         }
     };
+
+    let classMessage = "";
+    if (message.type === "") {
+        classMessage = "";
+    } else if (message.type === "success") {
+        classMessage = "success";
+    } else if (message.type === "error") {
+        classMessage = "error";
+    }
 
     return (
         <div>
             <h2>Phonebook</h2>
+            <div className={classMessage}>{message?.content}</div>
             <Filter
                 newFilter={newFilter}
                 handleFilterChange={handleFilterChange}
