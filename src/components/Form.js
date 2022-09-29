@@ -4,7 +4,7 @@ const Form = (props) => {
     return (
         <>
             <h3>Add a new</h3>
-            <form onSubmit={props.addPerson}>
+            <form onSubmit={props.addUpdatePerson}>
                 <div>
                     Name:{" "}
                     <input

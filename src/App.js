@@ -29,17 +29,33 @@ const App = () => {
         setNewFilter(event.target.value);
     };
 
-    const addPerson = (event) => {
+    const addUpdatePerson = (event) => {
         event.preventDefault();
 
         const found = persons.find(
-            (person) => person.name === newName || person.number === newNumber
+            (person) => person.name === newName && person.number !== newNumber
         );
 
         if (found) {
-            return alert(
-                `the name : ${newName} or the number : ${newNumber} is already added to phonebook`
-            );
+            if (
+                window.confirm(
+                    `${found.name} is already added to the phonebook. Replace the old number with the new one ?`
+                )
+            ) {
+                personService
+                    .modify(found.id, newNumber)
+                    .then(() =>
+                        setPersons(
+                            persons.map((person) =>
+                                person.id === found.id
+                                    ? { ...person, number: newNumber }
+                                    : person
+                            )
+                        )
+                    );
+                setNewName("");
+                setNewNumber("");
+            }
         } else {
             const newPerson = {
                 name: newName,
@@ -58,7 +74,7 @@ const App = () => {
     const deletePerson = (id) => {
         if (window.confirm(`Delete ?`)) {
             personService
-                .delPerson(id)
+                .remove(id)
                 .then(() =>
                     setPersons(persons.filter((person) => person.id !== id))
                 );
@@ -73,16 +89,16 @@ const App = () => {
                 handleFilterChange={handleFilterChange}
             />
             <Form
-                addPerson={addPerson}
                 newName={newName}
                 handleInputNameChange={handleInputNameChange}
                 newNumber={newNumber}
                 handleInputNumberChange={handleInputNumberChange}
+                addUpdatePerson={addUpdatePerson}
             />
             <Persons
+                newFilter={newFilter}
                 persons={persons}
                 deletePerson={deletePerson}
-                newFilter={newFilter}
             />
         </div>
     );
